@@ -8,9 +8,9 @@ from search_m import search_m
 parser = argparse.ArgumentParser(description='Search for a string in files')
 parser.add_argument('--path', '-p', type=str, required=True, help="Path to search in")
 parser.add_argument('--search', '-s', type=str, required=True, help="String to search for")
-parser.add_argument('--txtonly', '-t', action='store_true', help="Only show results in text files", default=False)
-parser.add_argument('--recursive', '-r', action='store_true', help="Search recursively", default=False)
-parser.add_argument('--multiprocessor', '-m', action='store_true', help="Use multiprocessing", default=False)
+parser.add_argument('--txtonly', '-t', action='store_true', help="Only show results in text files (default to search all files)", default=False)
+parser.add_argument('--recursive', '-r', action='store_true', help="Search subdirectories (default to search only the provided path)", default=False)
+parser.add_argument('--multiprocessor', '-m', action='store_true', help="Use multiprocessing (default to threading)", default=False)
 args = parser.parse_args()
 
 
