@@ -1,4 +1,5 @@
 import argparse
+import timeit
 from pathlib import Path
 from search_t import search_t
 from search_m import search_m
@@ -32,9 +33,13 @@ if __name__ == "__main__":
     # print(f"Searching for '{query}' in '{path}/{('**/' if args.recursive else '') + ('*.txt' if args.txtonly else '*')}', using {'multiprocessing' if args.multiprocessor else 'threading'}\n")
     # print(file_list)
 
+    start = timeit.default_timer()
     if args.multiprocessor:
-        print("Calling multiprocessing search function")
+        print("Calling multiprocessing search function\n")
         search_m(file_list, args.search)
     else:
-        print("Calling threading search function")
+        print("Calling threading search function\n")
         search_t(file_list, args.search)
+
+    stop = timeit.default_timer()
+    print(f"\nTime taken: {stop - start} seconds")
