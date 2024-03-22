@@ -15,31 +15,43 @@ args = parser.parse_args()
 
 
 def get_files(path):
-    # files = []
-    # s_pref = "**/" if args.recursive else ""
-    # s_term = "*.txt" if args.txtonly else "*"
-    # s_query = f"{s_pref}{s_term}"
-    #
-    # for file in path.glob(s_query):
-    #     if file.is_file():
-    #         files.append(file)
-    # return files
-
     return [f for f in path.glob(f"{'**/' if args.recursive else ''}{'*.txt' if args.txtonly else '*'}") if f.is_file()]
 
 
+def show_results(result_files):
+    for search, search_result in result_files.items():
+        if len(search_result) == 0:
+            print(f"\n'{search}' not found in any of the files.")
+            return
+        
+        print(f"\n'{search}' found in {len(search_result)} file{('s' if len(search_result) > 1 else '')}:")
+        for file in search_result:
+            if isinstance(file, Path):
+                print(f"| {file.parent}/{file.name}")
+            else:
+                print(f"| {file}")
+
+
 if __name__ == "__main__":
+    start_program = timeit.default_timer()
     file_list = get_files(Path(args.path))
-    # print(f"Searching for '{query}' in '{path}/{('**/' if args.recursive else '') + ('*.txt' if args.txtonly else '*')}', using {'multiprocessing' if args.multiprocessor else 'threading'}\n")
-    # print(file_list)
 
-    start = timeit.default_timer()
-    if args.multiprocessor:
-        print("Calling multiprocessing search function\n")
-        search_m(file_list, args.search)
-    else:
-        print("Calling threading search function\n")
-        search_t(file_list, args.search)
+    result_files = dict()
+    print(f"Searching for '{args.search}' in '{args.path}/{('**/' if args.recursive else '') + ('*.txt' if args.txtonly else '*')}' using {'multiprocessing' if args.multiprocessor else 'threading'}...")
 
-    stop = timeit.default_timer()
-    print(f"\nTime taken: {stop - start} seconds")
+    searcher = locals()[f"search_{'m' if args.multiprocessor else 't'}"]
+
+    start_search = timeit.default_timer()
+    for search_q in args.search.split(','):
+        search_q = search_q.strip(',. ').casefold()
+        searcher(file_list, search_q, result_files)
+    stop_search = timeit.default_timer()
+
+    show_results(result_files)
+
+    stop_program = timeit.default_timer()
+    print(f"""\nTime taken:
+ {stop_search - start_search:.10f} sec. Search
+ {(start_search - start_program) + (stop_program - stop_search):.10f} sec. Other tasks
+ {stop_program - start_program:.10f} sec. Total""")
+    exit(0)
